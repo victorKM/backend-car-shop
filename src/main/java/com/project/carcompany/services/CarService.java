@@ -24,11 +24,11 @@ public class CarService {
     return carRepository.findAll();
   }
 
-  public Car search(String text) {
+  public List<Car> search(String text) {
     return carRepository.searchIgnoreCase(text);
   }
 
-  public List<Car> searchByCategory(List<String> categoriesNames) {
+  public List<Car> searchByCategory(List<String> categoriesNames, String direction, String text) {
     return carRepository.searchByCategory(categoriesNames);
   }
 

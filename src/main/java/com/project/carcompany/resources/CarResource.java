@@ -1,7 +1,6 @@
 package com.project.carcompany.resources;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.project.carcompany.entities.Car;
-import com.project.carcompany.entities.Category;
 import com.project.carcompany.services.CarService;
 
 @RestController
@@ -35,11 +33,7 @@ public class CarResource {
   }
 
   @GetMapping(value="/searchbycategory")
-  public ResponseEntity<List<Car>> searchByCategory(@RequestBody List<Category> categories){
-    List<String> categoriesNames = new ArrayList<>();
-    for(Category c : categories){
-      categoriesNames.add(c.getName());
-    }
+  public ResponseEntity<List<Car>> searchByCategory(@RequestBody List<String> categoriesNames){
     List<Car> cars = carService.searchByCategory(categoriesNames);
     return ResponseEntity.ok().body(cars);
   }
@@ -57,8 +51,8 @@ public class CarResource {
   }
 
   @GetMapping(value="/search")
-  public ResponseEntity<Car> search(@RequestParam(value="text", defaultValue="") String text){
-    Car cars = carService.search(text);
+  public ResponseEntity<List<Car>> search(@RequestParam(value="text", defaultValue="") String text){
+    List<Car> cars = carService.search(text);
     return ResponseEntity.ok().body(cars);
   }
 

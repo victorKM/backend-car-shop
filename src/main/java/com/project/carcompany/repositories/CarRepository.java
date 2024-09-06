@@ -13,7 +13,7 @@ import com.project.carcompany.entities.Car;
 public interface CarRepository extends JpaRepository<Car, Long>{
   
   @Query("select c from Car c where c.name like %?1% or c.company like  %?1%")
-  Car searchIgnoreCase(String name);
+  List<Car> searchIgnoreCase(String text);
 
   @Query("select c from Car c join c.categories cat where cat.name in ?1")
   List<Car> searchByCategory(List<String> categoriesNames);
