@@ -1,5 +1,7 @@
 package com.project.carcompany.services;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -30,21 +32,27 @@ public class CarService {
     return carRepository.findAll();
   }
 
-  public List<Car> searchAll(String text, List<String> categoriesNames, String direction, String parameter) {
-    if(categoriesNames == null || categoriesNames.isEmpty()) {
+  public List<Car> searchAll(String text, String categoriesNames, String direction, String parameter) {
+    List<String> categoriesNamesList = new ArrayList<>();
+
+    if("".equals(categoriesNames)) {
       List<Category> categories = categoryRepository.findAll();
       for (Category c : categories) {
-        categoriesNames.add(c.getName());
+        categoriesNamesList.add(c.getName());
       }
+    }
+    else {
+      String[] fields = categoriesNames.split(",");
+      categoriesNamesList.addAll(Arrays.asList(fields));
     }
 
     if("asc".equalsIgnoreCase(direction)) {
-      return carRepository.searchAllIgnoreCase(text, categoriesNames, Sort.by(Direction.ASC, parameter.toLowerCase()));
+      return carRepository.searchAllIgnoreCase(text, categoriesNamesList, Sort.by(Direction.ASC, parameter.toLowerCase()));
     } 
     else if ("desc".equalsIgnoreCase(direction)) {
-      return carRepository.searchAllIgnoreCase(text, categoriesNames, Sort.by(Direction.DESC, parameter.toLowerCase()));
+      return carRepository.searchAllIgnoreCase(text, categoriesNamesList, Sort.by(Direction.DESC, parameter.toLowerCase()));
     } else {
-      return carRepository.searchAllIgnoreCase(text, categoriesNames, Sort.unsorted());
+      return carRepository.searchAllIgnoreCase(text, categoriesNamesList, Sort.unsorted());
     }
   }
 

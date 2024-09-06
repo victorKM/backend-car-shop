@@ -34,7 +34,9 @@ public class CarResource {
   }
 
   @GetMapping(value="/searchall")
-  public ResponseEntity<List<Car>> search(@RequestParam(value="text", defaultValue="") String text, @RequestBody List<String> categoriesNames, @RequestParam(value="direction", defaultValue="") String direction, @RequestParam(value="parameter", defaultValue="") String parameter){
+  public ResponseEntity<List<Car>> search(@RequestParam(value="text", defaultValue="") String text, @RequestParam(value="categoriesNames", defaultValue="") String categoriesNames, 
+          @RequestParam(value="direction", defaultValue="") String direction, @RequestParam(value="parameter", defaultValue="") String parameter)
+  {
     text = URL.decodeParam(text);
     List<Car> cars = carService.searchAll(text, categoriesNames, direction, parameter);
     return ResponseEntity.ok().body(cars);
