@@ -1,6 +1,7 @@
 package com.project.carcompany.services;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,10 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.project.carcompany.entities.Car;
+import com.project.carcompany.entities.Category;
 import com.project.carcompany.repositories.CarRepository;
+import com.project.carcompany.repositories.CategoryRepository;
+import com.project.carcompany.services.exceptions.ResourceAlreadyExists;
 import com.project.carcompany.services.exceptions.ResourceNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -20,33 +24,46 @@ public class CarService {
   @Autowired
   private CarRepository carRepository;
 
+  @Autowired CategoryRepository categoryRepository;
+
   public List<Car> findAll() {
     return carRepository.findAll();
   }
 
-  public List<Car> search(String text) {
-    return carRepository.searchIgnoreCase(text);
-  }
+  public List<Car> searchAll(String text, List<String> categoriesNames, String direction, String parameter) {
+    if(categoriesNames == null || categoriesNames.isEmpty()) {
+      List<Category> categories = categoryRepository.findAll();
+      for (Category c : categories) {
+        categoriesNames.add(c.getName());
+      }
+    }
 
-  public List<Car> searchByCategory(List<String> categoriesNames, String direction, String text) {
-    return carRepository.searchByCategory(categoriesNames);
-  }
-
-  public List<Car> findOrderByName() {
-    return carRepository.findOrderByIgnoreCase(Sort.by(Direction.ASC, "name"));
-  }
-
-  public List<Car> findOrderByPrice() {
-    return carRepository.findOrderByIgnoreCase(Sort.by(Direction.DESC, "price"));
+    if("asc".equalsIgnoreCase(direction)) {
+      return carRepository.searchAllIgnoreCase(text, categoriesNames, Sort.by(Direction.ASC, parameter.toLowerCase()));
+    } 
+    else if ("desc".equalsIgnoreCase(direction)) {
+      return carRepository.searchAllIgnoreCase(text, categoriesNames, Sort.by(Direction.DESC, parameter.toLowerCase()));
+    } else {
+      return carRepository.searchAllIgnoreCase(text, categoriesNames, Sort.unsorted());
+    }
   }
 
   public Car findById(Long id) {
-    Optional<Car> car = carRepository.findById(id);
-    return car.get();
+    try {
+      Optional<Car> car = carRepository.findById(id);
+      return car.get();
+    } catch (NoSuchElementException e) {
+      throw new ResourceNotFoundException(id);
+    }
   }
 
   public Car insert(Car car) {
-    return carRepository.save(car);
+    Car existingCar = carRepository.existCar(car.getName(), car.getCompany(), car.getImageUrl(),  car.getPrice());
+    if (existingCar != null) {
+      throw new ResourceAlreadyExists(existingCar.getName());
+    } else {
+      return carRepository.save(car);
+    }
   }
 
   public Car update(Long id, Car car) {
@@ -55,7 +72,7 @@ public class CarService {
       update(returnedCar, car);
       return carRepository.save(returnedCar);
     } catch (EntityNotFoundException e) {
-      throw new ResourceNotFoundException(e);
+      throw new ResourceNotFoundException(id);
     }
   }
 

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.project.carcompany.services.exceptions.ResourceAlreadyExists;
 import com.project.carcompany.services.exceptions.ResourceNotFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +19,14 @@ public class ResourceExceptionHandler {
   public ResponseEntity<StandardError> resourceNotFound(ResourceNotFoundException e, HttpServletRequest request) {
     String error = "Resource not found";
     HttpStatus status = HttpStatus.NOT_FOUND;
+    StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+    return ResponseEntity.status(status).body(err);
+  }
+
+  @ExceptionHandler(ResourceAlreadyExists.class)
+  public ResponseEntity<StandardError> resourceAlreadyExists(ResourceAlreadyExists e, HttpServletRequest request) {
+    String error = "Resource already exists";
+    HttpStatus status = HttpStatus.BAD_REQUEST;
     StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
     return ResponseEntity.status(status).body(err);
   }

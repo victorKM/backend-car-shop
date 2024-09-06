@@ -3,6 +3,8 @@ package com.project.carcompany.entities;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,6 +20,7 @@ public class Category {
   private Long id;
   private String name;
 
+  @JsonIgnore
   @OneToMany(mappedBy = "categories")
   private Set<Car> cars = new HashSet<>();
 

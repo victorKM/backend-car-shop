@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.project.carcompany.entities.Car;
+import com.project.carcompany.resources.utils.URL;
 import com.project.carcompany.services.CarService;
 
 @RestController
@@ -32,27 +33,10 @@ public class CarResource {
     return ResponseEntity.ok().body(cars);
   }
 
-  @GetMapping(value="/searchbycategory")
-  public ResponseEntity<List<Car>> searchByCategory(@RequestBody List<String> categoriesNames){
-    List<Car> cars = carService.searchByCategory(categoriesNames);
-    return ResponseEntity.ok().body(cars);
-  }
-
-  @GetMapping(value="/orderbyname")
-  public ResponseEntity<List<Car>> findOrderByName(){
-    List<Car> cars = carService.findOrderByName();
-    return ResponseEntity.ok().body(cars);
-  }
-
-  @GetMapping(value="/orderbyprice")
-  public ResponseEntity<List<Car>> findOrderByPrice(){
-    List<Car> cars = carService.findOrderByPrice();
-    return ResponseEntity.ok().body(cars);
-  }
-
-  @GetMapping(value="/search")
-  public ResponseEntity<List<Car>> search(@RequestParam(value="text", defaultValue="") String text){
-    List<Car> cars = carService.search(text);
+  @GetMapping(value="/searchall")
+  public ResponseEntity<List<Car>> search(@RequestParam(value="text", defaultValue="") String text, @RequestBody List<String> categoriesNames, @RequestParam(value="direction", defaultValue="") String direction, @RequestParam(value="parameter", defaultValue="") String parameter){
+    text = URL.decodeParam(text);
+    List<Car> cars = carService.searchAll(text, categoriesNames, direction, parameter);
     return ResponseEntity.ok().body(cars);
   }
 
