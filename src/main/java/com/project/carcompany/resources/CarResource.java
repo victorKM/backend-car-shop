@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.project.carcompany.dto.CarDTO;
 import com.project.carcompany.entities.Car;
 import com.project.carcompany.resources.utils.URL;
 import com.project.carcompany.services.CarService;
+import com.project.carcompany.services.CategoryService;
 
 @RestController
 @RequestMapping(value="/cars")
@@ -26,6 +28,9 @@ public class CarResource {
   
   @Autowired
   private CarService carService;
+
+  @Autowired
+  private CategoryService categoryService;
 
   @GetMapping
   public ResponseEntity<List<Car>> findAll(){
@@ -49,8 +54,9 @@ public class CarResource {
   }
 
   @PostMapping
-  public ResponseEntity<Car> insert(@RequestBody Car car) {
-    Car newCar =  carService.insert(car);
+  public ResponseEntity<Car> insert(@RequestBody CarDTO carDto) {
+    Car car = carService.fromDTO(carDto);
+    Car newCar = carService.insert(car, carDto.getCategoriesIds());
     URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newCar.getId()).toUri();
     return ResponseEntity.created(uri).body(newCar);
   }

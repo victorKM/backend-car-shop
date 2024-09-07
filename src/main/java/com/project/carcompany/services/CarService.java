@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
+import com.project.carcompany.dto.CarDTO;
 import com.project.carcompany.entities.Car;
 import com.project.carcompany.entities.Category;
 import com.project.carcompany.repositories.CarRepository;
@@ -26,7 +27,8 @@ public class CarService {
   @Autowired
   private CarRepository carRepository;
 
-  @Autowired CategoryRepository categoryRepository;
+  @Autowired 
+  private CategoryRepository categoryRepository;
 
   public List<Car> findAll() {
     return carRepository.findAll();
@@ -65,11 +67,19 @@ public class CarService {
     }
   }
 
-  public Car insert(Car car) {
+  public Car insert(Car car, Long[] categoriesIds) {
     Car existingCar = carRepository.existCar(car.getName(), car.getCompany(), car.getImageUrl(),  car.getPrice());
+
     if (existingCar != null) {
       throw new ResourceAlreadyExists(existingCar.getName());
     } else {
+      if (categoriesIds.length != 0) {
+        for (int i = 0; i < categoriesIds.length; i++) {
+          Optional<Category> category = categoryRepository.findById(categoriesIds[i]);
+          System.out.println(category.get());
+          car.getCategories().add(category.get());
+        }
+      }
       return carRepository.save(car);
     }
   }
@@ -89,6 +99,10 @@ public class CarService {
     returnedCar.setPrice(car.getPrice());
     returnedCar.setCompany(car.getCompany());
     returnedCar.setImageUrl(car.getImageUrl());
+  }
+
+  public Car fromDTO(CarDTO carDto) {
+    return new Car(null, carDto.getName(), carDto.getCompany(), carDto.getPrice(), carDto.getImageUrl());
   }
 
   public void deleteById(Long id) {
